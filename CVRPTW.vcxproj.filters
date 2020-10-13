@@ -18,5 +18,8 @@
     <ClCompile Include="CVRPTW.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="czy_dziala.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
