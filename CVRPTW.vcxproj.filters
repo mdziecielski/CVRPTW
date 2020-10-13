@@ -22,4 +22,21 @@
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\..\..\Desktop\OK projekt\Input\cvrptw1.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="..\..\..\Desktop\OK projekt\Input\cvrptw2.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="..\..\..\Desktop\OK projekt\Input\cvrptw3.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="..\..\..\Desktop\OK projekt\Input\cvrptw4.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="..\..\..\Desktop\OK projekt\Input\rc21010.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+  </ItemGroup>
 </Project>

@@ -142,6 +142,13 @@
     <ClCompile Include="CVRPTW.cpp" />
     <ClCompile Include="czy_dziala.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\..\..\Desktop\OK projekt\Input\cvrptw1.txt" />
+    <Text Include="..\..\..\Desktop\OK projekt\Input\cvrptw2.txt" />
+    <Text Include="..\..\..\Desktop\OK projekt\Input\cvrptw3.txt" />
+    <Text Include="..\..\..\Desktop\OK projekt\Input\cvrptw4.txt" />
+    <Text Include="..\..\..\Desktop\OK projekt\Input\rc21010.txt" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
