@@ -149,6 +149,9 @@
     <Text Include="..\..\..\Desktop\OK projekt\Input\cvrptw4.txt" />
     <Text Include="..\..\..\Desktop\OK projekt\Input\rc21010.txt" />
   </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="CVRPTW.rc" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

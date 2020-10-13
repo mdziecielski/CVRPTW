@@ -5,6 +5,15 @@ VisualStudioVersion = 16.0.30523.141
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CVRPTW", "CVRPTW.vcxproj", "{B585C534-8758-4BC7-8330-5139C874459D}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Input", "Input", "{E5A97E94-829E-4D2B-8ED8-FE5E9620945D}"
+	ProjectSection(SolutionItems) = preProject
+		..\..\..\Desktop\OK projekt\Input\cvrptw1.txt = ..\..\..\Desktop\OK projekt\Input\cvrptw1.txt
+		..\..\..\Desktop\OK projekt\Input\cvrptw2.txt = ..\..\..\Desktop\OK projekt\Input\cvrptw2.txt
+		..\..\..\Desktop\OK projekt\Input\cvrptw3.txt = ..\..\..\Desktop\OK projekt\Input\cvrptw3.txt
+		..\..\..\Desktop\OK projekt\Input\cvrptw4.txt = ..\..\..\Desktop\OK projekt\Input\cvrptw4.txt
+		..\..\..\Desktop\OK projekt\Input\rc21010.txt = ..\..\..\Desktop\OK projekt\Input\rc21010.txt
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
