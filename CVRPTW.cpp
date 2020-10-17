@@ -7,7 +7,7 @@ int main()
     std::cout << "Hello GitHub!\n";
 
     std::ifstream example_input;
-    example_input.open("Input/cvrptw1.txt");
+    example_input.open("./Input/cvrptw1.txt");
 
     std::string line;
 

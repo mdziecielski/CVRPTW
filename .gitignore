@@ -338,3 +338,8 @@ ASALocalRun/
 
 # BeatPulse healthcheck temp database
 healthchecksdb
+
+# Visual Studio Code stuff
+/.vscode
+./CVRPTW.dSYM
+./CVRPTW
