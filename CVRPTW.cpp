@@ -2,6 +2,7 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <sstream>
 
 class Customer {
     public:
@@ -43,7 +44,7 @@ class Customer {
         int y;
         int demand;
         int ready_time;
-        int end_time;    
+        int end_time;
         int service_time;
 };
 
@@ -57,27 +58,65 @@ class CVRPTW {
         void add_customer(Customer customer) {
             this->customers.push_back(customer);
         }
+        std::vector<Customer> customers;
 
     private:
         int vehicle_number;
         int vehicle_capacity;
-        std::vector<Customer> customers;
+
 };
 
 int main()
 {
-    std::cout << "Hello GitHub!\n";
+    //std::cout << "Hello GitHub!\n";
 
     std::ifstream example_input;
     example_input.open("./Input/cvrptw1.txt");
-
     std::string line;
+
+    //pomijanie niewaznych linijek i zczytanie wlasnosci samochodu
+    for(int i = 0; i < 5; i++)
+    {
+        std::getline(example_input, line);
+    }
+
+    std::stringstream s(line);
+    int vehicle_n, vehicle_c;
+    s >> vehicle_n >> vehicle_c;
+    CVRPTW problem =  CVRPTW(vehicle_n, vehicle_c);
+
+
+        //pomijanie niewaznych linijek
+    for(int i = 0; i < 4; i++)
+    {
+        std::getline(example_input, line);
+    }
+    int _;
+    int x;
+    int y;
+    int dem;
+    int ready;
+    int due;
+    int service;
+
+
+
 
     while (std::getline(example_input, line)) {
         std::cout << line << std::endl;
+        if (line == ""){
+            break;
+        }
+        std::stringstream s(line);
+        s >> _ >> x >> y >> dem >> ready >> due >> service;
+        problem.add_customer(Customer(x,y,dem,ready,due,service));
+    }
+
+    for(int i = 0; i < problem.customers.size(); i++){
+        std::cout << problem.customers[i].get_end_time() << std::endl;
     }
 
     example_input.close();
-    
+
     return 0;
 }
