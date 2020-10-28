@@ -58,11 +58,11 @@ class CVRPTW {
         void add_customer(Customer customer) {
             this->customers.push_back(customer);
         }
-        std::vector<Customer> customers;
 
     private:
         int vehicle_number;
         int vehicle_capacity;
+        std::vector<Customer> customers;
 
 };
 
@@ -86,7 +86,7 @@ int main()
     CVRPTW problem =  CVRPTW(vehicle_n, vehicle_c);
 
 
-        //pomijanie niewaznych linijek
+    //pomijanie niewaznych linijek
     for(int i = 0; i < 4; i++)
     {
         std::getline(example_input, line);
@@ -110,10 +110,6 @@ int main()
         std::stringstream s(line);
         s >> _ >> x >> y >> dem >> ready >> due >> service;
         problem.add_customer(Customer(x,y,dem,ready,due,service));
-    }
-
-    for(int i = 0; i < problem.customers.size(); i++){
-        std::cout << problem.customers[i].get_end_time() << std::endl;
     }
 
     example_input.close();
