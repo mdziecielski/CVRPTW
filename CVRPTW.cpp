@@ -3,6 +3,14 @@
 #include <string>
 #include <vector>
 
+/*
+
+1. Sort Customers by Due Date
+2. Check validity - for every customer deploy one vehicle
+    Check if
+
+*/
+
 class Customer {
     public:
         Customer(int X, int Y, int DEMAND, int READY_TIME, int END_TIME, int SERVICE_TIME) {
@@ -64,8 +72,7 @@ class CVRPTW {
         std::vector<Customer> customers;
 };
 
-int main()
-{
+int main() {
     std::cout << "Hello GitHub!\n";
 
     std::ifstream example_input;
