@@ -9,21 +9,28 @@
 
 1. Sort Customers by Due Date 
 2. Check validity - for every customer deploy one vehicle [X]
-3. 
 */
 
 class Customer {
     public:
-        Customer(int X, int Y, int DEMAND, int READY_TIME, int END_TIME, int SERVICE_TIME) {
+        Customer(int X, int Y, int DEMAND, int READY_TIME, int DUE_TIME, int SERVICE_TIME) {
             this->x = X;
             this->y = Y;
             this->demand = DEMAND;
             this->ready_time = READY_TIME;
-            this->end_time = END_TIME;
+            this->due_time = DUE_TIME;
             this->service_time = SERVICE_TIME;
         };
-        Customer(){};
-        
+
+        Customer(const Customer &c) {
+            x = c.x;
+            y = c.y;
+            demand = c.demand;
+            ready_time = c.ready_time;
+            due_time = c.due_time;
+            service_time = c.service_time;
+        }
+
         double get_distance(Customer pierwszy){
             return sqrt(pow(pierwszy.get_x() - this->x,2)+pow(pierwszy.get_y() - this->y,2));
         }
@@ -44,8 +51,8 @@ class Customer {
             return this->ready_time;
         }
 
-        int get_end_time() {
-            return this->end_time;
+        int get_due_time() {
+            return this->due_time;
         }
 
         int get_service_time() {
@@ -57,7 +64,7 @@ class Customer {
         int y;
         int demand;
         int ready_time;
-        int end_time;
+        int due_time;
         int service_time;
 };
 
@@ -67,29 +74,34 @@ class CVRPTW {
             this->vehicle_number = VEHICLE_NUMBER;
             this->vehicle_capacity = VEHICLE_CAPACITY;
         };
-        void add_depo(Customer customer){
-            this->depo.push_back(customer);
+
+        void add_depot(Customer c) {
+            depot = c;
         }
+
+        void get_depot() {
+            std::cout << this->depot.get_x() << " " << this->depot.get_y() << " " << this->depot.get_due_time() << std::endl;
+        }
+
         void add_customer(Customer customer) {
             this->customers.push_back(customer);
         }
+
         int check_validity(){
             for(auto x: customers){
-                if ((x.get_x()==depo[0].get_x()) && (x.get_y()==this->depo[0].get_y())){
+                if ((x.get_x()==depot.get_x()) && (x.get_y()==this->depot.get_y())){
                     continue;
                 }
-                if(x.get_distance(this->depo[0]) >= x.get_ready_time()){
-                    if(x.get_distance(this->depo[0])*2 + x.get_service_time() > this->depo[0].get_end_time()){
+                if(x.get_distance(this->depot) >= x.get_ready_time()){
+                    if(x.get_distance(this->depot)*2 + x.get_service_time() > this->depot.get_due_time()){
                         return -1;
                     }
                 }
                 else{
-                    if(x.get_ready_time()+x.get_service_time()+x.get_distance(this->depo[0]) > this->depo[0].get_end_time()){
+                    if(x.get_ready_time()+x.get_service_time()+x.get_distance(this->depot) > this->depot.get_due_time()){
                         return -1;
                     }
                 }
-
-
             }
             return 1;
         }
@@ -98,16 +110,13 @@ class CVRPTW {
         int vehicle_number;
         int vehicle_capacity;
         std::vector<Customer> customers;
-        std::vector<Customer> depo;
-        
+        Customer depot;
 };
 
 int main()
 {
-    //std::cout << "Hello GitHub!\n";
-
     std::ifstream example_input;
-    example_input.open("/Input/cvrptw1.txt");
+    example_input.open("./Input/cvrptw1.txt");
     std::string line;
 
     //pomijanie niewaznych linijek i zczytanie wlasnosci samochodu
@@ -121,12 +130,12 @@ int main()
     s >> vehicle_n >> vehicle_c;
     CVRPTW problem =  CVRPTW(vehicle_n, vehicle_c);
 
-
     //pomijanie niewaznych linijek
     for(int i = 0; i < 4; i++)
     {
         std::getline(example_input, line);
     }
+
     int customer_num;
     int x;
     int y;
@@ -135,22 +144,21 @@ int main()
     int due;
     int service;
 
-
-
     while (std::getline(example_input, line)) {
-        if (line == ""){
+        if (line == "") {
             break;
         }
         std::stringstream s(line);
         s >> customer_num >> x >> y >> dem >> ready >> due >> service;
-        if(customer_num == 0){
-            problem.add_depo(Customer(x,y,dem,ready,due,service));
-        }
-        else{
+        if(customer_num == 0) {
+            problem.add_depot(Customer(x,y,dem,ready,due,service));
+        } 
+        
         problem.add_customer(Customer(x,y,dem,ready,due,service));
-        }
     }
-    std::cout<<problem.check_validity();
+
+    std::cout<< problem.check_validity() << std::endl;
+    problem.get_depot();
     example_input.close();
 
     return 0;
