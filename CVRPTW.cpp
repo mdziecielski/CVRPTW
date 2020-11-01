@@ -79,7 +79,7 @@ int main()
     //std::cout << "Hello GitHub!\n";
 
     std::ifstream example_input;
-    example_input.open("./Input/cvrptw1.txt");
+    example_input.open("/Input/cvrptw1.txt");
     std::string line;
 
     //pomijanie niewaznych linijek i zczytanie wlasnosci samochodu
@@ -106,9 +106,6 @@ int main()
     int ready;
     int due;
     int service;
-
-
-
 
     while (std::getline(example_input, line)) {
         std::cout << line << std::endl;
