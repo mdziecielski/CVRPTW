@@ -7,14 +7,16 @@
 #include <sstream>
 #include <math.h>
 
-/*
-
-1. Sort Customers by Due Date 
-2. Check validity - for every customer deploy one vehicle [X]
-*/
-
 class Customer {
     public:
+        int id;
+        int x;
+        int y;
+        int demand;
+        int ready_time;
+        int due_time;
+        int service_time;
+
         Customer(int ID, int X, int Y, int DEMAND, int READY_TIME, int DUE_TIME, int SERVICE_TIME) {
             this->id = ID;
             this->x = X;
@@ -35,18 +37,19 @@ class Customer {
             this->service_time = 0;
         };
 
-        Customer(const Customer &c) {
-            id = c.id;
-            x = c.x;
-            y = c.y;
-            demand = c.demand;
-            ready_time = c.ready_time;
-            due_time = c.due_time;
-            service_time = c.service_time;
+        Customer &operator=(const Customer &c) {
+            this->id = c.id;
+            this->x = c.x;
+            this->y = c.y;
+            this->demand = c.demand;
+            this->ready_time = c.ready_time;
+            this->due_time = c.due_time;
+            this->service_time = c.service_time;
+            return *this;
         }
 
         double get_distance(Customer pierwszy){
-            return sqrt(pow(pierwszy.get_x() - this->x,2)+pow(pierwszy.get_y() - this->y,2));
+            return sqrt(pow(pierwszy.get_x() - this->x, 2)+pow(pierwszy.get_y() - this->y, 2));
         }
 
         int get_id() {
@@ -82,13 +85,7 @@ class Customer {
         }
 
     private:
-        int id;
-        int x;
-        int y;
-        int demand;
-        int ready_time;
-        int due_time;
-        int service_time;
+        
 };
 
 bool compare_due_time(Customer a, Customer b) {
@@ -102,7 +99,7 @@ class CVRPTW {
             this->vehicle_capacity = VEHICLE_CAPACITY;
         };
 
-        void add_depot(Customer c) {
+        void add_depot(Customer &c) {
             depot = c;
         }
 
@@ -133,11 +130,21 @@ class CVRPTW {
             return 1;
         }
 
-        void greedy_solve() {
-            if(check_validity() == -1) {
-                std::cout << -1 << std::endl;
-                return;
+        int find_closest_customer(Customer current_customer) {
+            int closest_index = 0;
+            for(int i = 0; i < customers.size(); i++) {
+                if(current_customer.get_distance(customers[i]) < current_customer.get_distance(customers[closest_index])) {
+                    closest_index = i;
+                }
             }
+            return closest_index;
+        }
+
+        void greedy_solve() {
+            // if(check_validity() == -1) {
+            //     std::cout << -1 << std::endl;
+            //     return;
+            // }
 
             int count_routes = 0;
             double route_cost_sum = 0.0;
@@ -148,27 +155,44 @@ class CVRPTW {
             std::vector<int> row;
             routes.push_back(row);
 
-            std::sort(customers.begin(), customers.end(), compare_due_time);
+            // std::sort(customers.begin(), customers.end(), compare_due_time);
 
             while(1) {
                 if (customers.empty()) {
                     std::cout << count_routes << " " << std::setprecision(5) << route_cost_sum << std::endl;
-                    for(int i = 0; i < count_routes; i++) {
-                        for(int n : routes[i]) {
-                            std::cout << n << " ";
-                        }
-                        std::cout << std::endl;
-                    }
+                    // for(int i = 0; i < count_routes; i++) {
+                    //     for(int n : routes[i]) {
+                    //         std::cout << n << " ";
+                    //     }
+                    //     std::cout << std::endl;
+                    // }
                     break;
                 }
 
-                // Greedily choose next customer
-                int next_customer_index = -1;
-                for(int i = 0; i < customers.size(); i++) {
-                    if((current_time + current_customer.get_distance(customers[i]) <= customers[i].get_due_time()) && (current_capacity >= customers[i].get_demand())) {
-                        next_customer_index = i;
-                        break;
+                // // Greedily choose next customer
+                // int next_customer_index = -1;
+                // for(int i = 0; i < customers.size(); i++) {
+                //     if((current_time + current_customer.get_distance(customers[i]) <= customers[i].get_due_time()) && (current_capacity >= customers[i].get_demand())) {
+                //         next_customer_index = i;
+                //         break;
+                //     }
+                // }
+
+                int next_customer_index = 0;
+                for(int i = 1; i < customers.size(); i++) {
+                    if(willArriveOnTime(current_customer, customers[i], current_time) && 
+                       hasEnoughCapacityFor(customers[i], current_capacity) && 
+                       ableToReturnToDepot(current_customer, customers[i], current_time) && 
+                       cost_function(current_customer, customers[i], current_time) < cost_function(current_customer, customers[next_customer_index], current_time)) {
+                            next_customer_index = i;
                     }
+                }
+
+                if (next_customer_index == 0 &&
+                    (!willArriveOnTime(current_customer, customers[0], current_time) || 
+                    !hasEnoughCapacityFor(customers[0], current_capacity)|| 
+                    !ableToReturnToDepot(current_customer, customers[0], current_time))) {
+                        next_customer_index = -1;
                 }
 
                 // Update variables according to next customer's info
@@ -212,6 +236,29 @@ class CVRPTW {
         int vehicle_capacity;
         std::vector<Customer> customers;
         Customer depot;
+
+        bool willArriveOnTime(Customer current, Customer next, double current_time) {
+            return current_time + current.get_distance(next) <= next.get_due_time();
+        }
+
+        bool hasEnoughCapacityFor(Customer c, int current_capacity) {
+            return current_capacity >= c.get_demand();
+        }
+
+        bool ableToReturnToDepot(Customer current, Customer next, double current_time) {
+            double time = current_time + current.get_distance(next);
+            time = (time < next.get_ready_time()) ? next.get_ready_time() : time;
+            time += next.get_service_time();
+
+            return this->willArriveOnTime(next, this->depot, time);
+        }
+
+        double cost_function(Customer current, Customer next, double current_time) {
+            return current.get_distance(next);
+            // return next.get_due_time() - current_time;
+            // return (current.get_distance(next)) * (next.get_due_time() - current_time);
+            // return (current.get_distance(next)) + (next.get_due_time() - current_time);
+        }
 };
 
 int main()
@@ -229,10 +276,11 @@ int main()
     std::stringstream s(line);
     int vehicle_n, vehicle_c;
     s >> vehicle_n >> vehicle_c;
-    CVRPTW problem =  CVRPTW(vehicle_n, vehicle_c);
+    CVRPTW problem = CVRPTW(vehicle_n, vehicle_c);
+    Customer depot;
 
     //pomijanie niewaznych linijek
-    for(int i = 0; i < 4; i++)
+    for(int i = 0; i < 3; i++)
     {
         std::getline(example_input, line);
     }
@@ -252,14 +300,14 @@ int main()
         std::stringstream s(line);
         s >> customer_num >> x >> y >> dem >> ready >> due >> service;
         if(customer_num == 0) {
-            problem.add_depot(Customer(customer_num, x, y, dem, ready, due, service));
-        } 
-        
-        problem.add_customer(Customer(customer_num, x, y, dem, ready, due, service));
+            depot = Customer(customer_num, x, y, dem, ready, due, service);
+            problem.add_depot(depot);
+        } else {
+            problem.add_customer(Customer(customer_num, x, y, dem, ready, due, service));
+        }
     }
 
     problem.greedy_solve();
-
     example_input.close();
 
     return 0;
