@@ -160,12 +160,12 @@ class CVRPTW {
             while(1) {
                 if (customers.empty()) {
                     std::cout << count_routes << " " << std::setprecision(5) << route_cost_sum << std::endl;
-                    // for(int i = 0; i < count_routes; i++) {
-                    //     for(int n : routes[i]) {
-                    //         std::cout << n << " ";
-                    //     }
-                    //     std::cout << std::endl;
-                    // }
+                    for(int i = 0; i < count_routes; i++) {
+                        for(int n : routes[i]) {
+                            std::cout << n << " ";
+                        }
+                        std::cout << std::endl;
+                    }
                     break;
                 }
 
@@ -254,17 +254,19 @@ class CVRPTW {
         }
 
         double cost_function(Customer current, Customer next, double current_time) {
-            return current.get_distance(next);
+            // return current.get_distance(next);
             // return next.get_due_time() - current_time;
             // return (current.get_distance(next)) * (next.get_due_time() - current_time);
             // return (current.get_distance(next)) + (next.get_due_time() - current_time);
+            // return (current.get_distance(next)) / (next.get_due_time() - current_time);
+            return (next.get_due_time() - current_time) / (current.get_distance(next));
         }
 };
 
 int main()
 {
     std::ifstream example_input;
-    example_input.open("./Input/m2kvrptw-0.txt");
+    example_input.open("./Input/cvrptw4.txt");
     std::string line;
 
     //pomijanie niewaznych linijek i zczytanie wlasnosci samochodu
@@ -280,7 +282,7 @@ int main()
     Customer depot;
 
     //pomijanie niewaznych linijek
-    for(int i = 0; i < 3; i++)
+    for(int i = 0; i < 4; i++)
     {
         std::getline(example_input, line);
     }
