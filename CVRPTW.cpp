@@ -141,10 +141,10 @@ class CVRPTW {
         }
 
         void greedy_solve() {
-            // if(check_validity() == -1) {
-            //     std::cout << -1 << std::endl;
-            //     return;
-            // }
+            if(check_validity() == -1) {
+                std::cout << -1 << std::endl;
+                return;
+            }
 
             int count_routes = 0;
             double route_cost_sum = 0.0;
@@ -159,12 +159,13 @@ class CVRPTW {
 
             while(1) {
                 if (customers.empty()) {
-                    std::cout << count_routes << " " << std::setprecision(5) << route_cost_sum << std::endl;
+                    std::cout.precision(5);
+                    std::cout << count_routes << " " << std::fixed << route_cost_sum << std::endl;
                     for(int i = 0; i < count_routes; i++) {
-                        for(int n : routes[i]) {
-                            std::cout << n << " ";
-                        }
-                        std::cout << std::endl;
+                        // for(int n : routes[i]) {
+                        //     std::cout << n << " ";
+                        // }
+                        // std::cout << std::endl;
                     }
                     break;
                 }
@@ -257,9 +258,9 @@ class CVRPTW {
             // return current.get_distance(next);
             // return next.get_due_time() - current_time;
             // return (current.get_distance(next)) * (next.get_due_time() - current_time);
-            // return (current.get_distance(next)) + (next.get_due_time() - current_time);
+            return (current.get_distance(next)) + (next.get_due_time() - current_time);
             // return (current.get_distance(next)) / (next.get_due_time() - current_time);
-            return (next.get_due_time() - current_time) / (current.get_distance(next));
+            // return (next.get_due_time() - current_time) / (current.get_distance(next));
         }
 };
 
@@ -281,16 +282,12 @@ int main()
     std::stringstream s(line);
     int vehicle_n, vehicle_c;
     s >> vehicle_n >> vehicle_c;
-    std::cout << vehicle_n << " " << vehicle_c << std::endl;
+    // std::cout << vehicle_n << " " << vehicle_c << std::endl;
     CVRPTW problem = CVRPTW(vehicle_n, vehicle_c);
     Customer depot;
 
     //pomijanie niewaznych linijek
-<<<<<<< HEAD
-    for(int i = 0; i < 4; i++)
-=======
     for(int i = 0; i < 2; i++)
->>>>>>> 9901d95b80dcb33154d6402c9578f08a00e66bcc
     {
         std::getline(example_input, line);
         if(line.length()<6){
@@ -311,12 +308,12 @@ int main()
             break;
         }
         if((customer_num==-1) && (line.length()<6)){
-            std::cout << "elo" << std::endl;
+            // std::cout << "elo" << std::endl;
             std::getline(example_input,line);
         }
         std::stringstream s(line);
         s >> customer_num >> x >> y >> dem >> ready >> due >> service;
-        std::cout << customer_num << std::endl;
+        // std::cout << customer_num << std::endl;
         if(customer_num == 0) {
             depot = Customer(customer_num, x, y, dem, ready, due, service);
             problem.add_depot(depot);
@@ -325,7 +322,7 @@ int main()
         }
     }
 
-    //problem.greedy_solve();
+    problem.greedy_solve();
     example_input.close();
     return 0;
 }
