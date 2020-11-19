@@ -113,9 +113,6 @@ class CVRPTW {
 
         int check_validity(){
             for(auto x: customers){
-                if ((x.get_x()==depot.get_x()) && (x.get_y()==this->depot.get_y())){
-                    continue;
-                }
                 if(x.get_distance(this->depot) >= x.get_ready_time()){
                     if(x.get_distance(this->depot)*2 + x.get_service_time() > this->depot.get_due_time()){
                         return -1;
@@ -267,7 +264,7 @@ class CVRPTW {
 int main()
 {
     std::ifstream example_input;
-    example_input.open("./Input/cvrptw4.txt");
+    example_input.open("./Input/C202.txt");
     std::string line;
 
     //pomijanie niewaznych linijek i zczytanie wlasnosci samochodu
