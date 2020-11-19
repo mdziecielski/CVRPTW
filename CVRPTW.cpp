@@ -270,24 +270,35 @@ int main()
     std::string line;
 
     //pomijanie niewaznych linijek i zczytanie wlasnosci samochodu
-    for(int i = 0; i < 5; i++)
+    for(int i = 0; i < 4; i++)
     {
         std::getline(example_input, line);
+        if(line.length()<6){
+            i--;
+        }
     }
 
     std::stringstream s(line);
     int vehicle_n, vehicle_c;
     s >> vehicle_n >> vehicle_c;
+    std::cout << vehicle_n << " " << vehicle_c << std::endl;
     CVRPTW problem = CVRPTW(vehicle_n, vehicle_c);
     Customer depot;
 
     //pomijanie niewaznych linijek
+<<<<<<< HEAD
     for(int i = 0; i < 4; i++)
+=======
+    for(int i = 0; i < 2; i++)
+>>>>>>> 9901d95b80dcb33154d6402c9578f08a00e66bcc
     {
         std::getline(example_input, line);
+        if(line.length()<6){
+            i--;
+        }
     }
 
-    int customer_num;
+    int customer_num = -1;
     int x;
     int y;
     int dem;
@@ -296,11 +307,16 @@ int main()
     int service;
 
     while (std::getline(example_input, line)) {
-        if (line == "") {
+        if((line.length()<6) && (customer_num != -1)){
             break;
+        }
+        if((customer_num==-1) && (line.length()<6)){
+            std::cout << "elo" << std::endl;
+            std::getline(example_input,line);
         }
         std::stringstream s(line);
         s >> customer_num >> x >> y >> dem >> ready >> due >> service;
+        std::cout << customer_num << std::endl;
         if(customer_num == 0) {
             depot = Customer(customer_num, x, y, dem, ready, due, service);
             problem.add_depot(depot);
@@ -309,8 +325,7 @@ int main()
         }
     }
 
-    problem.greedy_solve();
+    //problem.greedy_solve();
     example_input.close();
-
     return 0;
 }
