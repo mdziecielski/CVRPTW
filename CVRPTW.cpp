@@ -115,16 +115,12 @@ class CVRPTW {
             for(auto x: customers){
                 if(x.get_distance(this->depot) >= x.get_ready_time()){
                     if(x.get_distance(this->depot)*2 + x.get_service_time() > this->depot.get_due_time()){
-                        std::cout << x.get_id() << " " << "pierwszy" << std::endl;
-                        std::cout << x.get_distance(this->depot) << std::endl;
-                        std::cout <<x.get_distance(this->depot)*2 + x.get_service_time() << "####" << depot.get_due_time() << std::endl;
                         get_depot();
                         return -1;
                     }
                 }
                 else{
                     if(x.get_ready_time()+x.get_service_time()+x.get_distance(this->depot) > this->depot.get_due_time()){
-                        std::cout << x.get_id() << " " << "drugi" << std::endl;
                         return -1;
                     }
                 }
@@ -150,6 +146,7 @@ class CVRPTW {
             }
 
             int count_routes = 0;
+            int count_routes2 = 0;
             double route_cost_sum = 0.0;
             double current_time = 0.0;
             double current_capacity = this->vehicle_capacity;
@@ -162,11 +159,16 @@ class CVRPTW {
 
             while(1) {
                 if (customers.empty()) {
+                    for(int i = 0; i<count_routes; i++){
+                        if(!routes[i].empty()){
+                            count_routes2++;
+                        }
+                    }
                     std::cout.precision(5);
-                    std::cout << count_routes << " " << std::fixed << route_cost_sum << std::endl;
+                    std::cout << count_routes2 << " " << std::fixed << route_cost_sum << std::endl;
                     EXAMPLE_OUT.precision(5);
-                    EXAMPLE_OUT << count_routes << " " << std::fixed << route_cost_sum <<std::endl;
-                    for(int i = 0; i < count_routes; i++) {
+                    EXAMPLE_OUT << count_routes2 << " " << std::fixed << route_cost_sum <<std::endl;
+                    for(int i = 0; i < count_routes2; i++) {
                          for(int n : routes[i]) {
                              std::cout << n << " ";
                              EXAMPLE_OUT << n << " ";
@@ -223,11 +225,14 @@ class CVRPTW {
                     current_customer = customers[next_customer_index];
                 
                     // Remove chosen customer from customer list
+                    //std::cout << customers[next_customer_index].get_id() << " " << next_customer_index << std::endl;
                     customers.erase(customers.begin() + next_customer_index);
+                    
                 }
 
                 // If no suitable customer was found or vehicle's capacity is equal to zero
                 if (next_customer_index == -1 || current_capacity == 0) {
+                    //std::cout <<"#########\n a" << next_customer_index << "\n######\n";
                     count_routes++;
                     route_cost_sum += current_customer.get_distance(this->depot);
                     current_time = 0.0;
@@ -235,6 +240,11 @@ class CVRPTW {
                     current_customer = this->depot;
                     std::vector<int> row;
                     routes.push_back(row);
+                }
+
+                if(customers.empty()){
+                    count_routes++;
+                    route_cost_sum += current_customer.get_distance(this->depot);
                 }
             }
         }
@@ -274,7 +284,7 @@ class CVRPTW {
 int main(int argc, char* argv[])
 {
     if(argc != 3){
-        printf("Usage of this program: CVRPTW.exe [input file] [output file]\n");
+        printf("usage: CVRPTW.exe input file output file\n");
         return -1;
     }
     std::ifstream example_input;
