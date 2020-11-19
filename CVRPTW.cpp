@@ -113,16 +113,18 @@ class CVRPTW {
 
         int check_validity(){
             for(auto x: customers){
-                if ((x.get_x()==depot.get_x()) && (x.get_y()==this->depot.get_y())){
-                    continue;
-                }
                 if(x.get_distance(this->depot) >= x.get_ready_time()){
                     if(x.get_distance(this->depot)*2 + x.get_service_time() > this->depot.get_due_time()){
+                        std::cout << x.get_id() << " " << "pierwszy" << std::endl;
+                        std::cout << x.get_distance(this->depot) << std::endl;
+                        std::cout <<x.get_distance(this->depot)*2 + x.get_service_time() << "####" << depot.get_due_time() << std::endl;
+                        get_depot();
                         return -1;
                     }
                 }
                 else{
                     if(x.get_ready_time()+x.get_service_time()+x.get_distance(this->depot) > this->depot.get_due_time()){
+                        std::cout << x.get_id() << " " << "drugi" << std::endl;
                         return -1;
                     }
                 }
@@ -140,8 +142,9 @@ class CVRPTW {
             return closest_index;
         }
 
-        void greedy_solve() {
+        void greedy_solve(std::ofstream &EXAMPLE_OUT) {
             if(check_validity() == -1) {
+                EXAMPLE_OUT << -1;
                 std::cout << -1 << std::endl;
                 return;
             }
@@ -161,11 +164,15 @@ class CVRPTW {
                 if (customers.empty()) {
                     std::cout.precision(5);
                     std::cout << count_routes << " " << std::fixed << route_cost_sum << std::endl;
+                    EXAMPLE_OUT.precision(5);
+                    EXAMPLE_OUT << count_routes << " " << std::fixed << route_cost_sum <<std::endl;
                     for(int i = 0; i < count_routes; i++) {
-                        // for(int n : routes[i]) {
-                        //     std::cout << n << " ";
-                        // }
-                        // std::cout << std::endl;
+                         for(int n : routes[i]) {
+                             std::cout << n << " ";
+                             EXAMPLE_OUT << n << " ";
+                         }
+                         std::cout << std::endl;
+                         EXAMPLE_OUT << std::endl;
                     }
                     break;
                 }
@@ -264,17 +271,22 @@ class CVRPTW {
         }
 };
 
-int main()
+int main(int argc, char* argv[])
 {
+    if(argc != 3){
+        printf("Usage of this program: CVRPTW.exe [input file] [output file]\n");
+        return -1;
+    }
     std::ifstream example_input;
-    example_input.open("./Input/cvrptw4.txt");
+    example_input.open(argv[1]);
     std::string line;
-
+    std::ofstream example_output;
+    example_output.open(argv[2], std::ofstream::out);
     //pomijanie niewaznych linijek i zczytanie wlasnosci samochodu
     for(int i = 0; i < 4; i++)
     {
         std::getline(example_input, line);
-        if(line.length()<6){
+        if(line.length()<4){
             i--;
         }
     }
@@ -290,7 +302,7 @@ int main()
     for(int i = 0; i < 2; i++)
     {
         std::getline(example_input, line);
-        if(line.length()<6){
+        if(line.length()<4){
             i--;
         }
     }
@@ -304,7 +316,7 @@ int main()
     int service;
 
     while (std::getline(example_input, line)) {
-        if((line.length()<6) && (customer_num != -1)){
+        if((line.length()<4) && (customer_num != -1)){
             break;
         }
         if((customer_num==-1) && (line.length()<6)){
@@ -313,7 +325,6 @@ int main()
         }
         std::stringstream s(line);
         s >> customer_num >> x >> y >> dem >> ready >> due >> service;
-        // std::cout << customer_num << std::endl;
         if(customer_num == 0) {
             depot = Customer(customer_num, x, y, dem, ready, due, service);
             problem.add_depot(depot);
@@ -322,7 +333,8 @@ int main()
         }
     }
 
-    problem.greedy_solve();
+    problem.greedy_solve(example_output);
     example_input.close();
+    example_output.close();
     return 0;
 }
