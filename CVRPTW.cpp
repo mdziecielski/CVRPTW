@@ -235,6 +235,7 @@ class CVRPTW {
                     //std::cout <<"#########\n a" << next_customer_index << "\n######\n";
                     count_routes++;
                     route_cost_sum += current_customer.get_distance(this->depot);
+                    std::cout << "koszt = " << route_cost_sum << std::endl;
                     current_time = 0.0;
                     current_capacity = this->vehicle_capacity;
                     current_customer = this->depot;
