@@ -6,6 +6,7 @@
 #include <vector>
 #include <sstream>
 #include <math.h>
+#include <chrono>
 
 class Customer {
     public:
@@ -138,7 +139,7 @@ class CVRPTW {
             return closest_index;
         }
 
-        void greedy_solve(std::ofstream &EXAMPLE_OUT) {
+        void greedy_solve(std::ofstream &EXAMPLE_OUT /*, only used in creating graphs std::ofstream &OUTPUT_TABLE, int wierzcholki*/) {
             if(check_validity() == -1) {
                 EXAMPLE_OUT << -1;
                 std::cout << -1 << std::endl;
@@ -156,9 +157,16 @@ class CVRPTW {
             routes.push_back(row);
 
             // std::sort(customers.begin(), customers.end(), compare_due_time);
-
+            
+            //measuring execution time
+            //auto czas_startu = std::chrono:: high_resolution_clock::now();
+            
             while(1) {
                 if (customers.empty()) {
+                    
+                    //measuring execution time
+                    //auto czas = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - czas_startu);
+
                     for(int i = 0; i<count_routes; i++){
                         if(!routes[i].empty()){
                             count_routes2++;
@@ -176,6 +184,10 @@ class CVRPTW {
                          std::cout << std::endl;
                          EXAMPLE_OUT << std::endl;
                     }
+
+                    //writing the execution information to a file, used only in creating graphs
+                    //OUTPUT_TABLE << wierzcholki << "," << czas.count() << "," << count_routes2 << "," << route_cost_sum << std::endl;
+                    
                     break;
                 }
 
@@ -225,17 +237,14 @@ class CVRPTW {
                     current_customer = customers[next_customer_index];
                 
                     // Remove chosen customer from customer list
-                    //std::cout << customers[next_customer_index].get_id() << " " << next_customer_index << std::endl;
                     customers.erase(customers.begin() + next_customer_index);
                     
                 }
 
                 // If no suitable customer was found or vehicle's capacity is equal to zero
                 if (next_customer_index == -1 || current_capacity == 0) {
-                    //std::cout <<"#########\n a" << next_customer_index << "\n######\n";
                     count_routes++;
                     route_cost_sum += current_customer.get_distance(this->depot);
-                    std::cout << "koszt = " << route_cost_sum << std::endl;
                     current_time = 0.0;
                     current_capacity = this->vehicle_capacity;
                     current_customer = this->depot;
@@ -273,6 +282,7 @@ class CVRPTW {
         }
 
         double cost_function(Customer current, Customer next, double current_time) {
+            // different variants of the cost function
             // return current.get_distance(next);
             // return next.get_due_time() - current_time;
             // return (current.get_distance(next)) * (next.get_due_time() - current_time);
@@ -284,68 +294,85 @@ class CVRPTW {
 
 int main(int argc, char* argv[])
 {
+    
     if(argc != 3){
         printf("usage: CVRPTW.exe input file output file\n");
         return -1;
     }
-    std::ifstream example_input;
-    example_input.open(argv[1]);
-    std::string line;
-    std::ofstream example_output;
-    example_output.open(argv[2], std::ofstream::out);
-    //pomijanie niewaznych linijek i zczytanie wlasnosci samochodu
-    for(int i = 0; i < 4; i++)
-    {
-        std::getline(example_input, line);
-        if(line.length()<4){
-            i--;
-        }
-    }
 
-    std::stringstream s(line);
-    int vehicle_n, vehicle_c;
-    s >> vehicle_n >> vehicle_c;
-    // std::cout << vehicle_n << " " << vehicle_c << std::endl;
-    CVRPTW problem = CVRPTW(vehicle_n, vehicle_c);
-    Customer depot;
 
-    //pomijanie niewaznych linijek
-    for(int i = 0; i < 2; i++)
-    {
-        std::getline(example_input, line);
-        if(line.length()<4){
-            i--;
-        }
-    }
-
-    int customer_num = -1;
-    int x;
-    int y;
-    int dem;
-    int ready;
-    int due;
-    int service;
-
-    while (std::getline(example_input, line)) {
-        if((line.length()<4) && (customer_num != -1)){
-            break;
-        }
-        if((customer_num==-1) && (line.length()<6)){
-            // std::cout << "elo" << std::endl;
-            std::getline(example_input,line);
+    /*
+    std::ofstream output_table;
+    output_table.open("data.txt", std::ofstream::out);
+    output_table << "a,b,c,d" << std::endl;
+    */
+    
+    //this loop is used only to create graphs
+    //for(int j=50; j <=1000; j+=50){
+        std::ifstream example_input;
+        example_input.open(argv[1]);
+        std::string line;
+        std::ofstream example_output;
+        example_output.open(argv[2], std::ofstream::out);
+        //skipping blank or unimportant lines, getting the capacity of the vehicles
+        for(int i = 0; i < 4; i++)
+        {
+            std::getline(example_input, line);
+            if(line.length()<4){
+                i--;
+            }
         }
         std::stringstream s(line);
-        s >> customer_num >> x >> y >> dem >> ready >> due >> service;
-        if(customer_num == 0) {
-            depot = Customer(customer_num, x, y, dem, ready, due, service);
-            problem.add_depot(depot);
-        } else {
-            problem.add_customer(Customer(customer_num, x, y, dem, ready, due, service));
-        }
-    }
+        int vehicle_n, vehicle_c;
+        s >> vehicle_n >> vehicle_c;
+        CVRPTW problem = CVRPTW(vehicle_n, vehicle_c);
+        Customer depot;
 
-    problem.greedy_solve(example_output);
-    example_input.close();
-    example_output.close();
+        //skipping blank or unimportant lines
+        for(int i = 0; i < 2; i++)
+        {
+            std::getline(example_input, line);
+            if(line.length()<4){
+                i--;
+            }
+        }
+
+        int customer_num = -1;
+        int x;
+        int y;
+        int dem;
+        int ready;
+        int due;
+        int service;
+
+        while (std::getline(example_input, line)) {
+            //this condition is used only to create graphs
+            /*if(customer_num==j){
+                break;
+            }*/
+
+            if((line.length()<4) && (customer_num != -1)){
+                break;
+            }
+            if((customer_num==-1) && (line.length()<6)){
+
+                std::getline(example_input,line);
+            }
+            std::stringstream s(line);
+            s >> customer_num >> x >> y >> dem >> ready >> due >> service;
+            if(customer_num == 0) {
+                depot = Customer(customer_num, x, y, dem, ready, due, service);
+                problem.add_depot(depot);
+            } else {
+                problem.add_customer(Customer(customer_num, x, y, dem, ready, due, service));
+            }
+        }
+        problem.greedy_solve(example_output /*only used in creating graphs ,output_table, j*/);
+        example_input.close();
+        example_output.close();
+        
+    //}
+
+    //output_table.close();
     return 0;
 }
