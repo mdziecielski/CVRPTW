@@ -111,21 +111,19 @@ class CVRPTW {
             this->customers.push_back(customer);
         }
 
-        int check_validity(){
-            for(auto x: customers){
+        bool isValid(){
+            for(Customer x: customers){
                 if(x.get_distance(this->depot) >= x.get_ready_time()){
-                    if(x.get_distance(this->depot)*2 + x.get_service_time() > this->depot.get_due_time()){
-                        get_depot();
-                        return -1;
+                    if(x.get_distance(this->depot) * 2 + x.get_service_time() > this->depot.get_due_time()){
+                        return false;
                     }
-                }
-                else{
-                    if(x.get_ready_time()+x.get_service_time()+x.get_distance(this->depot) > this->depot.get_due_time()){
-                        return -1;
+                } else{
+                    if(x.get_ready_time() + x.get_service_time() + x.get_distance(this->depot) > this->depot.get_due_time()){
+                        return false;
                     }
                 }
             }
-            return 1;
+            return true;
         }
 
         int find_closest_customer(Customer current_customer) {
@@ -139,7 +137,7 @@ class CVRPTW {
         }
 
         void greedy_solve(std::ofstream &EXAMPLE_OUT) {
-            if(check_validity() == -1) {
+            if(!isValid()) {
                 EXAMPLE_OUT << -1;
                 std::cout << -1 << std::endl;
                 return;
@@ -273,10 +271,14 @@ class CVRPTW {
         }
 
         double cost_function(Customer current, Customer next, double current_time) {
+            // Distance between customers 
             // return current.get_distance(next);
+
+            // Difference between current time and next customer's due time
             // return next.get_due_time() - current_time;
+
             // return (current.get_distance(next)) * (next.get_due_time() - current_time);
-            return (current.get_distance(next)) + (next.get_due_time() - current_time);
+            // return (current.get_distance(next)) + (next.get_due_time() - current_time);
             // return (current.get_distance(next)) / (next.get_due_time() - current_time);
             // return (next.get_due_time() - current_time) / (current.get_distance(next));
         }
