@@ -224,6 +224,14 @@ class CVRPTW {
             }
         }
 
+        void two_opt(std::vector<int>& route) {
+            // 2-opt algorithm
+        }
+
+        void exchange_between(std::vector<int>& route1, std::vector<int>& route2) {
+            // Exchange customer betweeen two routes
+        }
+        
         result tabu_search_solve() {
             // Get greedy solution 
             result current_best = greedy_solve();
@@ -234,7 +242,7 @@ class CVRPTW {
 
             while(!stop) {
                 // neighbourhood
-                
+
                 if (best_candidate.count_routes < current_best.count_routes || 
                     best_candidate.routes_sum < current_best.routes_sum) {
                     current_best = best_candidate;
