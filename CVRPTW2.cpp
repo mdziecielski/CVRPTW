@@ -105,11 +105,11 @@ class CVRPTW {
         }
 
         void add_customer(Customer customer) {
-            this->customers.push_back(customer);
+            this->all_customers.push_back(customer);
         }
 
         bool isValid(){
-            for(Customer x: customers){
+            for(Customer x: all_customers){
                 if(x.get_distance(this->depot) >= x.get_ready_time()){
                     if(x.get_distance(this->depot) * 2 + x.get_service_time() > this->depot.get_due_time()){
                         return false;
@@ -134,6 +134,8 @@ class CVRPTW {
                 std::cout << -1 << std::endl;
                 return (result){-1, -1, std::vector<std::vector<int> >()};
             }
+
+            std::vector<Customer> customers(this->all_customers);
 
             int count_routes = 0;
             int count_routes2 = 0;
@@ -260,7 +262,7 @@ class CVRPTW {
     private:
         int vehicle_number;
         int vehicle_capacity;
-        std::vector<Customer> customers;
+        std::vector<Customer> all_customers;
         Customer depot;
 
         bool willArriveOnTime(Customer current, Customer next, double current_time) {
