@@ -108,6 +108,10 @@ class CVRPTW {
             this->all_customers.push_back(customer);
         }
 
+        Customer find_customer_by_id(int id) {
+            return this->all_customers[id - 1];
+        }
+
         bool isValid(){
             for(Customer x: all_customers){
                 if(x.get_distance(this->depot) >= x.get_ready_time()){
@@ -225,9 +229,52 @@ class CVRPTW {
                 }
             }
         }
+        
+        bool is_route_valid(std::vector<int> route) {
+            double current_time = 0;
+            Customer current_customer = this->depot;
 
-        void two_opt(std::vector<int>& route) {
-            // 2-opt algorithm
+            for(int id : route) {
+                Customer next_customer = find_customer_by_id(id); 
+
+                current_time += current_customer.get_distance(next_customer);
+
+                if (current_time < next_customer.get_ready_time()) 
+                    current_time = next_customer.get_ready_time();
+                else if (current_time > next_customer.get_due_time())
+                    return false;
+
+                current_time += next_customer.get_service_time();
+                current_customer = next_customer;
+            }
+
+            if(current_time + current_customer.get_distance(this->depot) < this->depot.get_due_time())
+                return true;
+
+            return false;
+        }
+
+        std::vector<int> two_opt(std::vector<int> route, int j, int k) {
+            std::vector<int> new_route;
+
+            // 1. take route[0] to route[j-1] and add them in order to new_route
+            for (int i = 0; i <= j - 1; i++)
+                new_route.push_back(route[i]);
+
+            // 2. take route[j] to route[k] and add them in reverse order to new_route
+            for (int i = k; i >= j; i--)
+                new_route.push_back(route[i]);
+
+            // 3. take route[k+1] to end and add them in order to new_route
+            for (int i = k + 1; i < route.size(); i++)
+                new_route.push_back(route[i]);
+
+            // 4. check new_route validity
+            if (is_route_valid(new_route)) {
+                return new_route;
+            }
+
+            return route;
         }
 
         void exchange_between(std::vector<int>& route1, std::vector<int>& route2) {
