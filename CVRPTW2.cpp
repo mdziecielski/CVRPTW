@@ -91,6 +91,12 @@ class Customer {
         
 };
 
+struct result {
+    int count_routes;
+    double routes_sum;
+    std::vector< std::vector<int> > routes;
+};
+
 class CVRPTW {
     public:
         CVRPTW(int VEHICLE_NUMBER, int VEHICLE_CAPACITY) {
@@ -129,11 +135,7 @@ class CVRPTW {
             return true;
         }
 
-        struct result {
-            int count_routes;
-            double routes_sum;
-            std::vector< std::vector<int> > routes;
-        };
+        
 
         result greedy_solve() {
             if(!isValid()) {
@@ -160,14 +162,17 @@ class CVRPTW {
                             count_routes2++;
                         }
                     }
-                    std::cout.precision(5);
-                    std::cout << count_routes2 << " " << std::fixed << route_cost_sum << std::endl;
-                    for(int i = 0; i < count_routes2; i++) {
-                         for(int n : routes[i]) {
-                             std::cout << n << " ";
-                         }
-                         std::cout << std::endl;
-                    }
+                    // std::cout.precision(5);
+                    // std::cout << count_routes2 << " " << std::fixed << route_cost_sum << std::endl;
+                    // for(int i = 0; i < count_routes2; i++) {
+                    //      for(int n : routes[i]) {
+                    //          std::cout << n << " ";
+                    //      }
+                    //      std::cout << std::endl;
+                    // }
+
+                    while(routes.back().empty())
+                        routes.pop_back();
 
                     return (result){count_routes2, route_cost_sum, routes};                 
                 }
@@ -258,7 +263,7 @@ class CVRPTW {
             return false;
         }
 
-        std::vector<int> two_opt(std::vector<int> route, int j, int k) {
+        std::vector<int> two_opt_swap(std::vector<int> route, int j, int k) {
             std::vector<int> new_route;
 
             // 1. take route[0] to route[j-1] and add them in order to new_route
@@ -281,7 +286,26 @@ class CVRPTW {
             return route;
         }
 
+        std::vector<int> two_opt(std::vector<int> route) { 
+            std::vector<int> newRoute(route);
+            while(true) {
+                double bestCost = getRouteCost(route);
+                bool isImprovement = false;
+                for(int i = 0; i < route.size() - 1; i++) {
+                    for(int j = i + 1; j < route.size(); j++) {
+                        std::vector<int> newRoute = two_opt_swap(route, i, j);
+                        double newCost = getRouteCost(newRoute);
+                        if(newCost < bestCost) {
+                            isImprovement = true;
+                            route = newRoute;
+                            bestCost = newCost;
+                        }
+                    }
+                }
 
+                if(isImprovement == false) return newRoute; 
+            }
+        }
 
         int exchange_between(std::vector<int>& route1, std::vector<int>& route2) {
             // Exchange customer betweeen two routes
@@ -295,7 +319,7 @@ class CVRPTW {
                 for(int j = 0; j<route2.size(); j++){
                     std::swap(route1[i],route2[j]);
                     if( is_route_valid(route1) && is_route_valid(route2)){
-                        if( dis(gen) <= 0.15){
+                        if( dis(gen) <= 0.15) {
                             return 1;
                         }
                         last_i = i;
@@ -311,19 +335,82 @@ class CVRPTW {
             return -1;
         }
         
+        double getRouteCost(std::vector<int> route) {
+            double current_time = 0;
+            Customer current_customer = this->depot;
+
+            for(int id : route) {
+                Customer next_customer = find_customer_by_id(id); 
+
+                current_time += current_customer.get_distance(next_customer);
+                if (current_time < next_customer.get_ready_time()) 
+                    current_time = next_customer.get_ready_time();
+
+                current_time += next_customer.get_service_time();
+                current_customer = next_customer;
+            }
+
+            return current_time + current_customer.get_distance(this->depot);
+        }
+
+        double getResultCost(std::vector< std::vector<int> > routes) {
+            double cost = 0;
+            for(std::vector<int> route : routes) {
+                cost += getRouteCost(route);
+            }
+
+            return cost;
+        }
+
+        std::vector<result> getNeighbours(result bestCandidate, int neighbourhoodSize) {
+            std::vector<result> neighbourhood;
+
+            for(int i = 0; i < neighbourhoodSize; i++) {
+                // coś się dzieje
+                std::vector< std::vector<int> > neighbour(bestCandidate.routes);
+                for(std::vector<int> route : neighbour) {
+                    two_opt(route);
+                }
+
+                neighbourhood.push_back((result){(int)neighbour.size(), getResultCost(neighbour), neighbour});
+            }
+            return neighbourhood;
+        }
+
+        bool isInTabu(std::vector<result> tabu, result candidate) {
+            for(result tabuItem: tabu) {
+                if((tabuItem.count_routes == candidate.count_routes) &&
+                    (tabuItem.routes_sum == candidate.routes_sum) &&
+                    (tabuItem.routes == candidate.routes)) // moze nie dzialac
+                        return true;
+            }
+            return false;
+        }
+
         result tabu_search_solve() {
             // Get greedy solution 
             result current_best = greedy_solve();
             result best_candidate = current_best;
             std::vector<result> tabu = {current_best};
-            int max_tabu_size = 5; // to be adjusted
+            int neighbourhoodSize = 20; // to be adjusted
+            int max_tabu_size = 20; // to be adjusted
+
             bool stop = false; // swap with time constraint
 
-            while(!stop) {
-                // neighbourhood
+            time_t start = time(0);
 
-                if (best_candidate.count_routes < current_best.count_routes || 
-                    best_candidate.routes_sum < current_best.routes_sum) {
+            while(true) {
+                std::vector<result> neighbourhood = getNeighbours(best_candidate, neighbourhoodSize);
+
+                best_candidate = neighbourhood[0];
+
+                for(result possible_candidate: neighbourhood) {
+                    if(!isInTabu(tabu, possible_candidate) && possible_candidate.routes_sum < best_candidate.routes_sum) {
+                        best_candidate = possible_candidate;
+                    }
+                }
+
+                if (best_candidate.routes_sum < current_best.routes_sum) {
                     current_best = best_candidate;
                 }
 
@@ -331,7 +418,13 @@ class CVRPTW {
                 if (tabu.size() > max_tabu_size) {
                     tabu.erase(tabu.begin());
                 }
-            } 
+                
+                time_t end = time(0);
+
+                if(end - start > 10.0) {
+                    break;
+                }
+            }
 
             return current_best;
         }
@@ -425,7 +518,13 @@ int main(int argc, char* argv[])
         }
     }
     
-    problem.tabu_search_solve();
+    result greedy_answer = problem.greedy_solve();
+    result tabu_answer = problem.tabu_search_solve();
+
+    std::cout << greedy_answer.count_routes << " " << greedy_answer.routes_sum << std::endl;
+
+    std::cout << tabu_answer.count_routes << " " << tabu_answer.routes_sum << std::endl;
+
     example_input.close();
     
     return 0;
