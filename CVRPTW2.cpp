@@ -7,6 +7,8 @@
 #include <sstream>
 #include <math.h>
 #include <chrono>
+#include <ctime>
+#include <random>
 
 class Customer {
     public:
@@ -232,13 +234,14 @@ class CVRPTW {
         
         bool is_route_valid(std::vector<int> route) {
             double current_time = 0;
+            int sum_of_demand = 0;
             Customer current_customer = this->depot;
 
             for(int id : route) {
                 Customer next_customer = find_customer_by_id(id); 
 
                 current_time += current_customer.get_distance(next_customer);
-
+                sum_of_demand += current_customer.get_demand();
                 if (current_time < next_customer.get_ready_time()) 
                     current_time = next_customer.get_ready_time();
                 else if (current_time > next_customer.get_due_time())
@@ -249,7 +252,8 @@ class CVRPTW {
             }
 
             if(current_time + current_customer.get_distance(this->depot) < this->depot.get_due_time())
-                return true;
+                if (sum_of_demand <= this->vehicle_capacity)
+                    return true;
 
             return false;
         }
@@ -277,8 +281,30 @@ class CVRPTW {
             return route;
         }
 
-        void exchange_between(std::vector<int>& route1, std::vector<int>& route2) {
+
+
+        int exchange_between(std::vector<int>& route1, std::vector<int>& route2) {
             // Exchange customer betweeen two routes
+            std::random_device rd;  //Will be used to obtain a seed for the random number engine
+            std::mt19937 gen(rd()); //Standard mersenne_twister_engine seeded with rd()
+            std::uniform_real_distribution<> dis(0.0, 1.0);
+            int last_i;
+            int last_j;
+
+            for(int i = 0; i<route1.size(); i++){
+                for(int j = 0; j<route2.size(); j++){
+                    std::swap(route1[i],route2[j]);
+                    if( is_route_valid(route1) && is_route_valid(route2)){
+                        if( dis(gen) <= 0.15){
+                            return 1;
+                        }
+                        last_i = i;
+                        last_j = j;
+                    }
+                    std::swap(route1[i],route2[j]);
+                }
+            }
+            std::swap(route1[last_i], route2[last_j]);
         }
         
         result tabu_search_solve() {
@@ -335,6 +361,7 @@ class CVRPTW {
 
 int main(int argc, char* argv[])
 {
+    
     
     // if(argc != 3){
     //     printf("usage: CVRPTW.exe input file output file\n");
