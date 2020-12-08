@@ -288,8 +288,8 @@ class CVRPTW {
             std::random_device rd;  //Will be used to obtain a seed for the random number engine
             std::mt19937 gen(rd()); //Standard mersenne_twister_engine seeded with rd()
             std::uniform_real_distribution<> dis(0.0, 1.0);
-            int last_i;
-            int last_j;
+            int last_i = -1;
+            int last_j = -1;
 
             for(int i = 0; i<route1.size(); i++){
                 for(int j = 0; j<route2.size(); j++){
@@ -304,7 +304,11 @@ class CVRPTW {
                     std::swap(route1[i],route2[j]);
                 }
             }
-            std::swap(route1[last_i], route2[last_j]);
+            if(last_i != -1){
+                std::swap(route1[last_i], route2[last_j]);
+                return 1;
+            }
+            return -1;
         }
         
         result tabu_search_solve() {
