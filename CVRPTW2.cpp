@@ -405,15 +405,13 @@ class CVRPTW {
             return false;
         }
 
-        result tabu_search_solve() {
+        result tabu_search_solve(int neighbourhoodSize, int maxTabuSize, int runningTime) {
             // Get greedy solution 
             result current_best = greedy_solve();
             result best_candidate = current_best;
             std::vector<result> tabu = {current_best};
-            int neighbourhoodSize = 20; // to be adjusted
-            int max_tabu_size = 20; // to be adjusted
-
-            bool stop = false; // swap with time constraint
+            // int neighbourhoodSize = 20; // to be adjusted
+            // int max_tabu_size = 20; // to be adjusted
 
             time_t start = time(0);
 
@@ -433,13 +431,13 @@ class CVRPTW {
                 }
 
                 tabu.push_back(best_candidate);
-                if (tabu.size() > max_tabu_size) {
+                if (tabu.size() > maxTabuSize) {
                     tabu.erase(tabu.begin());
                 }
                 
                 time_t end = time(0);
 
-                if(end - start > 30.0) {
+                if(end - start > runningTime) {
                     break;
                 }
             }
@@ -537,7 +535,10 @@ int main(int argc, char* argv[])
     }
     
     // result greedy_answer = problem.greedy_solve();
-    result tabu_answer = problem.tabu_search_solve();
+    int neighbourhoodSize = 20;
+    int maxTabuSize = 20;
+    int runningTime = 30;
+    result tabu_answer = problem.tabu_search_solve(neighbourhoodSize, maxTabuSize, runningTime);
 
     // std::cout << greedy_answer.count_routes << " " << greedy_answer.routes_sum << std::endl;
 
