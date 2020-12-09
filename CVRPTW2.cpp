@@ -482,6 +482,8 @@ int main(int argc, char* argv[])
     //     printf("usage: CVRPTW.exe input file output file\n");
     //     return -1;
     // }
+    std::ofstream example_output;
+    example_output.open(argv[2]);
 
     std::ifstream example_input;
     example_input.open(argv[1]);
@@ -540,16 +542,19 @@ int main(int argc, char* argv[])
     result tabu_answer = problem.tabu_search_solve();
 
     // std::cout << greedy_answer.count_routes << " " << greedy_answer.routes_sum << std::endl;
-
+    example_output.precision(5);
     std::cout << tabu_answer.count_routes << " " << tabu_answer.routes_sum << std::endl;
+    example_output << tabu_answer.count_routes << " " << std::fixed << tabu_answer.routes_sum << std::endl;
 
     for(std::vector<int> route: tabu_answer.routes) {
         for (int customer: route) {
             std::cout << customer << " ";
+            example_output << customer << " ";
         }
         std::cout << std::endl;
+        example_output << std::endl;
     }
-
+    example_output.close();
     example_input.close();
     
     return 0;
