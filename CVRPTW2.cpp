@@ -410,8 +410,6 @@ class CVRPTW {
             result current_best = greedy_solve();
             result best_candidate = current_best;
             std::vector<result> tabu = {current_best};
-            // int neighbourhoodSize = 20; // to be adjusted
-            // int max_tabu_size = 20; // to be adjusted
 
             time_t start = time(0);
 
