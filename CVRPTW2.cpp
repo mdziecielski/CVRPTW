@@ -537,9 +537,9 @@ int main(int argc, char* argv[])
     }
     
     // result greedy_answer = problem.greedy_solve();
-    int neighbourhoodSize = 20;
-    int maxTabuSize = 20;
-    int runningTime = 30;
+    int neighbourhoodSize = 150;
+    int maxTabuSize = 10;
+    int runningTime = 180;
     result tabu_answer = problem.tabu_search_solve(neighbourhoodSize, maxTabuSize, runningTime);
 
     // std::cout << greedy_answer.count_routes << " " << greedy_answer.routes_sum << std::endl;
