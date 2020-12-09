@@ -368,9 +368,27 @@ class CVRPTW {
             for(int i = 0; i < neighbourhoodSize; i++) {
                 // coś się dzieje
                 std::vector< std::vector<int> > neighbour(bestCandidate.routes);
-                for(std::vector<int> route : neighbour) {
-                    two_opt(route);
-                }
+                std::random_device rd;  
+                std::mt19937 gen(rd()); 
+                std::uniform_int_distribution<> dis(0, neighbour.size() - 1);
+
+                int randomIdx1 = dis(gen);
+                int randomIdx2 = dis(gen);
+                
+                exchange_between(neighbour[randomIdx1], neighbour[randomIdx2]);
+
+                // if (exchange_between(neighbour[randomIdx1], neighbour[randomIdx2]) == 1) {
+                //     std::cout << "dobrze" << std::endl;
+                // } else {
+                //     std::cout << "niedobrze" << std::endl;
+                // }
+
+                two_opt(neighbour[randomIdx1]);
+                two_opt(neighbour[randomIdx2]);
+
+                // for(std::vector<int> route : neighbour) {
+                //     two_opt(route);
+                // }
 
                 neighbourhood.push_back((result){(int)neighbour.size(), getResultCost(neighbour), neighbour});
             }
@@ -421,7 +439,7 @@ class CVRPTW {
                 
                 time_t end = time(0);
 
-                if(end - start > 10.0) {
+                if(end - start > 30.0) {
                     break;
                 }
             }
@@ -518,12 +536,19 @@ int main(int argc, char* argv[])
         }
     }
     
-    result greedy_answer = problem.greedy_solve();
+    // result greedy_answer = problem.greedy_solve();
     result tabu_answer = problem.tabu_search_solve();
 
-    std::cout << greedy_answer.count_routes << " " << greedy_answer.routes_sum << std::endl;
+    // std::cout << greedy_answer.count_routes << " " << greedy_answer.routes_sum << std::endl;
 
     std::cout << tabu_answer.count_routes << " " << tabu_answer.routes_sum << std::endl;
+
+    for(std::vector<int> route: tabu_answer.routes) {
+        for (int customer: route) {
+            std::cout << customer << " ";
+        }
+        std::cout << std::endl;
+    }
 
     example_input.close();
     
