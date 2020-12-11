@@ -139,7 +139,7 @@ class CVRPTW {
 
         result greedy_solve() {
             if(!isValid()) {
-                std::cout << -1 << std::endl;
+                // std::cout << -1 << std::endl;
                 return (result){-1, -1, std::vector<std::vector<int> >()};
             }
 
@@ -408,6 +408,11 @@ class CVRPTW {
         result tabu_search_solve(int neighbourhoodSize, int maxTabuSize, int runningTime) {
             // Get greedy solution 
             result current_best = greedy_solve();
+
+            if (current_best.count_routes == -1) {
+                return current_best;
+            }
+
             result best_candidate = current_best;
             std::vector<result> tabu = {current_best};
 
@@ -535,24 +540,30 @@ int main(int argc, char* argv[])
     }
     
     // result greedy_answer = problem.greedy_solve();
+    // std::cout << greedy_answer.count_routes << " " << greedy_answer.routes_sum << std::endl;
     int neighbourhoodSize = 150;
     int maxTabuSize = 10;
     int runningTime = 180;
     result tabu_answer = problem.tabu_search_solve(neighbourhoodSize, maxTabuSize, runningTime);
 
-    // std::cout << greedy_answer.count_routes << " " << greedy_answer.routes_sum << std::endl;
-    example_output.precision(5);
-    std::cout << tabu_answer.count_routes << " " << tabu_answer.routes_sum << std::endl;
-    example_output << tabu_answer.count_routes << " " << std::fixed << tabu_answer.routes_sum << std::endl;
+    if(tabu_answer.count_routes == -1) {
+        std::cout << tabu_answer.count_routes << std::endl;
+        example_output << tabu_answer.count_routes << std::endl;
+    } else {
+        example_output.precision(5);
+        std::cout << tabu_answer.count_routes << " " << tabu_answer.routes_sum << std::endl;
+        example_output << tabu_answer.count_routes << " " << std::fixed << tabu_answer.routes_sum << std::endl;
 
-    for(std::vector<int> route: tabu_answer.routes) {
-        for (int customer: route) {
-            std::cout << customer << " ";
-            example_output << customer << " ";
+        for(std::vector<int> route: tabu_answer.routes) {
+            for (int customer: route) {
+                std::cout << customer << " ";
+                example_output << customer << " ";
+            }
+            std::cout << std::endl;
+            example_output << std::endl;
         }
-        std::cout << std::endl;
-        example_output << std::endl;
     }
+
     example_output.close();
     example_input.close();
     
