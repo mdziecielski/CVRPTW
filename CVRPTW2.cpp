@@ -405,47 +405,51 @@ class CVRPTW {
             return false;
         }
 
-        result tabu_search_solve(int neighbourhoodSize, int maxTabuSize, int runningTime) {
+        result tabuSearchSolve(int neighbourhoodSize, int maxTabuSize, int runningTime) {
             // Get greedy solution 
-            result current_best = greedy_solve();
+            result currentBest = greedy_solve();
 
-            if (current_best.count_routes == -1) {
-                return current_best;
+            if (currentBest.count_routes == -1) {
+                return currentBest;
             }
 
-            result best_candidate = current_best;
-            std::vector<result> tabu = {current_best};
+            result bestCandidate = currentBest;
+            std::vector<result> tabu = {currentBest};
 
             time_t start = time(0);
 
             while(true) {
-                std::vector<result> neighbourhood = getNeighbours(best_candidate, neighbourhoodSize);
+                // Generate neighbourhood
+                std::vector<result> neighbourhood = getNeighbours(bestCandidate, neighbourhoodSize);
 
-                best_candidate = neighbourhood[0];
-
+                // Find the best solution in the neighbourhood
+                bestCandidate = neighbourhood[0];
                 for(result possible_candidate: neighbourhood) {
-                    if(!isInTabu(tabu, possible_candidate) && possible_candidate.routes_sum < best_candidate.routes_sum) {
-                        best_candidate = possible_candidate;
+                    if(!isInTabu(tabu, possible_candidate) && possible_candidate.routes_sum < bestCandidate.routes_sum) {
+                        bestCandidate = possible_candidate;
                     }
                 }
 
-                if (best_candidate.routes_sum < current_best.routes_sum) {
-                    current_best = best_candidate;
+                // Update currentBest if better solution was found
+                if (bestCandidate.routes_sum < currentBest.routes_sum) {
+                    currentBest = bestCandidate;
                 }
 
-                tabu.push_back(best_candidate);
+                // Update tabu list
+                tabu.push_back(bestCandidate);
                 if (tabu.size() > maxTabuSize) {
                     tabu.erase(tabu.begin());
                 }
                 
                 time_t end = time(0);
 
-                if(end - start > runningTime) {
+                // End program if the time runs out (with a margin of 2 seconds)
+                if(end - start > runningTime - 2) {
                     break;
                 }
             }
 
-            return current_best;
+            return currentBest;
         }
 
     private:
@@ -475,14 +479,7 @@ class CVRPTW {
         }
 };
 
-int main(int argc, char* argv[])
-{
-    
-    
-    // if(argc != 3){
-    //     printf("usage: CVRPTW.exe input file output file\n");
-    //     return -1;
-    // }
+int main(int argc, char* argv[]) {
     std::ofstream example_output;
     example_output.open(argv[2]);
 
@@ -538,23 +535,23 @@ int main(int argc, char* argv[])
             problem.add_customer(Customer(customer_num, x, y, dem, ready, due, service));
         }
     }
-    
-    // result greedy_answer = problem.greedy_solve();
-    // std::cout << greedy_answer.count_routes << " " << greedy_answer.routes_sum << std::endl;
-    int neighbourhoodSize = 150;
-    int maxTabuSize = 10;
-    int runningTime = 180;
-    result tabu_answer = problem.tabu_search_solve(neighbourhoodSize, maxTabuSize, runningTime);
+
+    int neighbourhoodSize = 50;
+    int maxTabuSize = 100;
+    int runningTime = 10;
+
+    result tabu_answer = problem.tabuSearchSolve(neighbourhoodSize, maxTabuSize, runningTime);
 
     if(tabu_answer.count_routes == -1) {
         std::cout << tabu_answer.count_routes << std::endl;
         example_output << tabu_answer.count_routes << std::endl;
     } else {
+        std::cout.precision(5);
+        std::cout  << tabu_answer.count_routes << " " << std::fixed << tabu_answer.routes_sum << std::endl;
         example_output.precision(5);
-        std::cout << tabu_answer.count_routes << " " << tabu_answer.routes_sum << std::endl;
         example_output << tabu_answer.count_routes << " " << std::fixed << tabu_answer.routes_sum << std::endl;
 
-        for(std::vector<int> route: tabu_answer.routes) {
+        for (std::vector<int> route: tabu_answer.routes) {
             for (int customer: route) {
                 std::cout << customer << " ";
                 example_output << customer << " ";
@@ -566,6 +563,6 @@ int main(int argc, char* argv[])
 
     example_output.close();
     example_input.close();
-    
+
     return 0;
 }
