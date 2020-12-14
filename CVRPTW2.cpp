@@ -256,6 +256,7 @@ class CVRPTW {
                 current_customer = next_customer;
             }
 
+            sum_of_demand += current_customer.get_demand();
             if(current_time + current_customer.get_distance(this->depot) < this->depot.get_due_time())
                 if (sum_of_demand <= this->vehicle_capacity)
                     return true;
@@ -366,7 +367,6 @@ class CVRPTW {
             std::vector<result> neighbourhood;
 
             for(int i = 0; i < neighbourhoodSize; i++) {
-                // coś się dzieje
                 std::vector< std::vector<int> > neighbour(bestCandidate.routes);
                 std::random_device rd;  
                 std::mt19937 gen(rd()); 
@@ -377,18 +377,8 @@ class CVRPTW {
                 
                 exchange_between(neighbour[randomIdx1], neighbour[randomIdx2]);
 
-                // if (exchange_between(neighbour[randomIdx1], neighbour[randomIdx2]) == 1) {
-                //     std::cout << "dobrze" << std::endl;
-                // } else {
-                //     std::cout << "niedobrze" << std::endl;
-                // }
-
                 two_opt(neighbour[randomIdx1]);
                 two_opt(neighbour[randomIdx2]);
-
-                // for(std::vector<int> route : neighbour) {
-                //     two_opt(route);
-                // }
 
                 neighbourhood.push_back((result){(int)neighbour.size(), getResultCost(neighbour), neighbour});
             }
@@ -399,7 +389,7 @@ class CVRPTW {
             for(result tabuItem: tabu) {
                 if((tabuItem.count_routes == candidate.count_routes) &&
                     (tabuItem.routes_sum == candidate.routes_sum) &&
-                    (tabuItem.routes == candidate.routes)) // moze nie dzialac
+                    (tabuItem.routes == candidate.routes))
                         return true;
             }
             return false;
@@ -538,7 +528,7 @@ int main(int argc, char* argv[]) {
 
     int neighbourhoodSize = 50;
     int maxTabuSize = 100;
-    int runningTime = 10;
+    int runningTime = 180;
 
     result tabu_answer = problem.tabuSearchSolve(neighbourhoodSize, maxTabuSize, runningTime);
 
